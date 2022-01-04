@@ -1,0 +1,49 @@
+.button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	min-width: 32px;
+	padding: 0;
+	border-width: 2px;
+	border: 1px solid;
+	border-radius: 50%;
+	background-color: #fff;
+	border-color: #fe5f1e;
+	cursor: pointer
+}
+.cart{
+	display: flex;
+	gap: 20px;
+	margin-bottom: 20px;
+}
+.nftToStake{
+	font-size: 24px;
+}
+.header{
+	width: 100%;
+}
+.button1{
+	display: inline-block;
+	background-color: #fe5f1e;
+	border-radius: 30px;
+	padding: 10px 20px;
+	min-width: 100px;
+	text-align: center;
+	cursor: pointer;
+	transition: background-color .15s ease-in-out,
+	border-color .15s ease-in-out;
+	border: 1px solid transparent;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	background: transparent;
+	color: #fe5f1e;
+	font-weight: 600;
+	font-size: 16px;
+	background-color: #fff;
+	border-color: #fe5f1e;
+}

@@ -4,6 +4,7 @@ import {
 } from 'react';
 import Web3 from 'web3';
 import Web3Modal from "web3modal";
+import styles from "./styles/app.module.css";
 
 function App() {
 	const [account, setAccount] = useState();
@@ -13,6 +14,7 @@ function App() {
 	const [subscribeDays, setSubscribeDays] = useState();
 	const [nftStaked, setNftStaked] = useState();
 	const [stakeReward, setStakeReward] = useState();
+	const [NFTsToStake, setNFTsToStake] = useState(1);
 	const web3 = new Web3(Web3.givenProvider || 'http://localhost:7545');
 	let tokenAddress = "0x680b1b336d0E179c067CFB8A019be6555E650bbb";
 	let nftAdress = "0xB25a0627F13eAE51354b4A172D2C667C56967CAC";
@@ -966,6 +968,14 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 		const rewardForStaking = await stakeNFTcontract.methods.earned(accounts[0]).call();
 		setStakeReward(rewardForStaking/10**18);
 	}
+	const onRemoveNFT = () => {
+		if(NFTsToStake > 1){
+			setNFTsToStake(NFTsToStake-1);
+		}
+	}
+	const onAddNFT = () => {
+		setNFTsToStake(NFTsToStake + 1);
+	}
 	async function logOut() {
 		const accounts = await web3Modal.clearCachedProvider();
 		setAccount(accounts)
@@ -998,9 +1008,24 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 		{nfts && account && <h1>You have {nfts} nfts</h1>}
 		{nftStaked && <h1>You have staked {nftStaked} nfts</h1>}
 		{stakeReward && <h1>Your rewards is {stakeReward} Crypton Days tokens!</h1>}
-		{stakeReward && <button onClick={() => getReward()}>Get Reward</button>}
-		{nftStaked && <button onClick={() => {withdrawNFTs()}}>Withdraw NFT staked</button>}
-		{nfts && <button onClick={() => {stakeNFTs()}}>Stake NFT to earn Crypton Days</button>}
+		{stakeReward && <button className={styles.button1} onClick={() => getReward()}>Get Reward</button>}
+		<div>
+			<h3 class={styles.header}>How many NFT you want to stake/unstake?</h3>
+
+			<div className={styles.cart}>
+				<div className={styles.button} onClick={() => onRemoveNFT()}>
+				<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z" fill="#EB5A1E"></path>
+				</svg>
+				</div>
+				<b value={2} className={styles.nftToStake}>{NFTsToStake}</b>
+				<div className={styles.button} onClick={() => onAddNFT()}>
+					<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.92001 3.84V5.76V8.64C5.92001 9.17016 5.49017 9.6 4.96001 9.6C4.42985 9.6 4.00001 9.17016 4.00001 8.64L4 5.76L4.00001 3.84V0.96C4.00001 0.42984 4.42985 0 4.96001 0C5.49017 0 5.92001 0.42984 5.92001 0.96V3.84Z" fill="#EB5A1E"></path><path d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z" fill="#EB5A1E"></path>
+					</svg>
+				</div>
+			</div>
+			</div>
+		{nftStaked && <button className={styles.button1} onClick={() => {withdrawNFTs()}}>Withdraw NFT staked</button>}
+		{nfts && <button className={styles.button1} onClick={() => {stakeNFTs()}}>Stake NFT to earn Crypton Days</button>}
     </div>
   );
 }
