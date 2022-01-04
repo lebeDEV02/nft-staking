@@ -11,9 +11,12 @@ function App() {
 	const [nfts, setNFTS] = useState();
 	const [NFTUri, setNFTUri] = useState();
 	const [subscribeDays, setSubscribeDays] = useState();
+	const [nftStaked, setNftStaked] = useState();
+	const [stakeReward, setStakeReward] = useState();
 	const web3 = new Web3(Web3.givenProvider || 'http://localhost:7545');
-	let tokenAddress = "0xB2fa808088b5D40736e8D3992a2Ec5557c6DEdb2";
-	let nftAdress = "0x33d5A522E060e424194D49Ff303AB82F8FFd54a7";
+	let tokenAddress = "0x680b1b336d0E179c067CFB8A019be6555E650bbb";
+	let nftAdress = "0xB25a0627F13eAE51354b4A172D2C667C56967CAC";
+	let StakeNftAdress = "0x0E50AB14a2B38019762F3F72614Efd3272dDa911";
 	let minABI = [
   // balanceOf
   {
@@ -416,8 +419,514 @@ let nftABI = [
 		"type": "function"
 	}
 ]
+let stakeNftABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "exit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getReward",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "onERC1155BatchReceived",
+		"outputs": [
+			{
+				"internalType": "bytes4",
+				"name": "",
+				"type": "bytes4"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "onERC1155Received",
+		"outputs": [
+			{
+				"internalType": "bytes4",
+				"name": "",
+				"type": "bytes4"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_rewardsToken",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_stakingToken",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_rewardsDuration",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "tokenAddress",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Recovered",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "reward",
+				"type": "uint256"
+			}
+		],
+		"name": "RewardAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "reward",
+				"type": "uint256"
+			}
+		],
+		"name": "RewardPaid",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "stake",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Staked",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Withdrawn",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "earned",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getRewardForDuration",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastTimeRewardApplicable",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastUpdateTime",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "periodFinish",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardPerToken",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardPerTokenStored",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardRate",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "rewards",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardsDuration",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardsToken",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "stakingToken",
+		"outputs": [
+			{
+				"internalType": "contract IERC1155",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes4",
+				"name": "interfaceId",
+				"type": "bytes4"
+			}
+		],
+		"name": "supportsInterface",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userRewardPerTokenPaid",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
 let contract = new web3.eth.Contract(minABI,tokenAddress);
 let NFTcontract = new web3.eth.Contract(nftABI,nftAdress);
+let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 	const providerOptions = {
 		/* See Provider Options Section */
 	};
@@ -452,10 +961,26 @@ let NFTcontract = new web3.eth.Contract(nftABI,nftAdress);
 		setNFTS(nftsAmount)
 		const NFTUri = await NFTcontract.methods.uri(0).call();
 		setNFTUri(NFTUri);
+		const amountOfStakedNFTs = await stakeNFTcontract.methods.balanceOf(accounts[0]).call();
+		setNftStaked(amountOfStakedNFTs);
+		const rewardForStaking = await stakeNFTcontract.methods.earned(accounts[0]).call();
+		setStakeReward(rewardForStaking/10**18);
 	}
 	async function logOut() {
 		const accounts = await web3Modal.clearCachedProvider();
 		setAccount(accounts)
+	}
+	async function getReward(){
+		const reward = await stakeNFTcontract.methods.getReward().send({from: account});
+		alert(`You have withdrawn ${stakeReward} tokens! Hooraaay!`)
+	}
+	async function withdrawNFTs(){
+		const withdrawNFTS = await stakeNFTcontract.methods.withdraw(10,"0","0x00").send({from: account});
+		alert(`You have withdrawn 10 NFTs! Hooraaay!`)
+	}
+	async function stakeNFTs(){
+		const stakeNFTS = await stakeNFTcontract.methods.stake(10,"0","0x00").send({from: account});
+		alert(`You have staked 10 NFTs! Hooraaay!`)
 	}
 
 	return (
@@ -463,14 +988,19 @@ let NFTcontract = new web3.eth.Contract(nftABI,nftAdress);
 		 {account ? `Your account is: ${account}` : `You need to authorize to continue ;)`}
 		 <button onClick={() => load()}>Enter via metamask</button>
 		 <button onClick={() => logOut()}>Log out</button>
-		<div>
+		{/* <h1>
 		 {balance && account &&`Your balance is ${balance/10**18} $ETH`}
-		</div>
-		<div>
+		</h1> */}
+		<h1>
 		 {subscribeDays && account && `Amount of days of your subscribe is ${subscribeDays} days`}
-		</div>
-		{nfts && <img src={NFTUri} alt="" />}
-		{nfts && <h1>You have {nfts} nfts</h1>}
+		</h1>
+		{nfts && account && <img src={NFTUri} alt="" />}
+		{nfts && account && <h1>You have {nfts} nfts</h1>}
+		{nftStaked && <h1>You have staked {nftStaked} nfts</h1>}
+		{stakeReward && <h1>Your rewards is {stakeReward} Crypton Days tokens!</h1>}
+		{stakeReward && <button onClick={() => getReward()}>Get Reward</button>}
+		{nftStaked && <button onClick={() => {withdrawNFTs()}}>Withdraw NFT staked</button>}
+		{nfts && <button onClick={() => {stakeNFTs()}}>Stake NFT to earn Crypton Days</button>}
     </div>
   );
 }
