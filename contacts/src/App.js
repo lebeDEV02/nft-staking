@@ -14,10 +14,12 @@ function App() {
 	const [nftStaked, setNftStaked] = useState();
 	const [stakeReward, setStakeReward] = useState();
 	const [NFTsToStake, setNFTsToStake] = useState(1);
+	const [whitelistStatus, setWhitelistStatus] = useState();
 	const web3 = new Web3(Web3.givenProvider || 'http://localhost:7545');
 	let tokenAddress = "0x680b1b336d0E179c067CFB8A019be6555E650bbb";
 	let nftAdress = "0xB25a0627F13eAE51354b4A172D2C667C56967CAC";
 	let StakeNftAdress = "0x0E50AB14a2B38019762F3F72614Efd3272dDa911";
+	let WhitelistAddress = "0x2B9f98553631DFA48F0dAA696e08F965D1661120";
 	let minABI = [
   // balanceOf
   {
@@ -925,9 +927,96 @@ let stakeNftABI = [
 		"type": "function"
 	}
 ]
+let whitelistABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_addressToWhitelist",
+				"type": "address"
+			}
+		],
+		"name": "addUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_whitelistedAddress",
+				"type": "address"
+			}
+		],
+		"name": "verifyUser",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
 let contract = new web3.eth.Contract(minABI,tokenAddress);
 let NFTcontract = new web3.eth.Contract(nftABI,nftAdress);
 let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
+let whitelistContract = new web3.eth.Contract(whitelistABI,WhitelistAddress);
 	const providerOptions = {};
 	const web3Modal = new Web3Modal({
 		network: "mainnet",
@@ -982,6 +1071,13 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 		setSubscribeDays(subscribeDays + stakeReward);
 
 	}
+	async function checkWhitelist(){
+		console.log(account);
+		const isWhitelisted = await whitelistContract.methods.verifyUser(`${account}`).call();
+		setWhitelistStatus(isWhitelisted);
+		console.log(isWhitelisted)
+
+	}
 	async function withdrawNFTs(){
 		const withdrawNFTS = await stakeNFTcontract.methods.withdraw(`${NFTsToStake}`,"0","0x00").send({from: account, gas: 180000});
 		// alert(`You have withdrawn ${NFTsToStake}! Hooraaay!`)
@@ -1014,26 +1110,29 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 		</h1>
 		{nfts && account && <img src={NFTUri} alt="" />}
 		{nfts && account && <h1>You have {nfts} nfts</h1>}
-		{account && nftStaked && <h1>You have staked {nftStaked} nfts</h1>}
-		{account && stakeReward!==0 && <h1>Your rewards is {stakeReward} Crypton Days tokens!</h1>}
-		{account && stakeReward!==0 && <button className={styles.button1} onClick={() => getReward()}>Get Reward</button>}
-		{account && <div>
-			<h3 class={styles.header}>How many NFT you want to stake/unstake?</h3>
-
-			<div className={styles.cart}>
-				<div className={styles.button} onClick={() => onRemoveNFT()}>
-				<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z" fill="#EB5A1E"></path>
-				</svg>
-				</div>
-				<b value={2} className={styles.nftToStake}>{NFTsToStake}</b>
-				<div className={styles.button} onClick={() => onAddNFT()}>
-					<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.92001 3.84V5.76V8.64C5.92001 9.17016 5.49017 9.6 4.96001 9.6C4.42985 9.6 4.00001 9.17016 4.00001 8.64L4 5.76L4.00001 3.84V0.96C4.00001 0.42984 4.42985 0 4.96001 0C5.49017 0 5.92001 0.42984 5.92001 0.96V3.84Z" fill="#EB5A1E"></path><path d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z" fill="#EB5A1E"></path>
-					</svg>
-				</div>
-			</div>
-			</div>}
-		{account && nftStaked && <button className={styles.button1} onClick={() => {withdrawNFTs()}}>Withdraw NFT staked</button>}
-		{account && nfts && <button className={styles.button1} onClick={() => {stakeNFTs()}}>Stake NFT to earn Crypton Days</button>}
+		{/* {account && nftStaked && <h1>You have staked {nftStaked} nfts</h1>}
+		// {account && stakeReward!==0 && <h1>Your rewards is {stakeReward} Crypton Days tokens!</h1>}
+		// {account && stakeReward!==0 && <button className={styles.button1} onClick={() => getReward()}>Get Reward</button>}
+		// {account && <div>
+			// <h3 class={styles.header}>How many NFT you want to stake/unstake?</h3>
+// 
+			// <div className={styles.cart}>
+				// <div className={styles.button} onClick={() => onRemoveNFT()}>
+				// <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z" fill="#EB5A1E"></path>
+				// </svg>
+				// </div>
+				// <b value={2} className={styles.nftToStake}>{NFTsToStake}</b>
+				// <div className={styles.button} onClick={() => onAddNFT()}>
+					// <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.92001 3.84V5.76V8.64C5.92001 9.17016 5.49017 9.6 4.96001 9.6C4.42985 9.6 4.00001 9.17016 4.00001 8.64L4 5.76L4.00001 3.84V0.96C4.00001 0.42984 4.42985 0 4.96001 0C5.49017 0 5.92001 0.42984 5.92001 0.96V3.84Z" fill="#EB5A1E"></path><path d="M5.75998 5.92001L3.83998 5.92001L0.959977 5.92001C0.429817 5.92001 -2.29533e-05 5.49017 -2.29301e-05 4.96001C-2.2907e-05 4.42985 0.429817 4.00001 0.959977 4.00001L3.83998 4L5.75998 4.00001L8.63998 4.00001C9.17014 4.00001 9.59998 4.42985 9.59998 4.96001C9.59998 5.49017 9.17014 5.92001 8.63998 5.92001L5.75998 5.92001Z" fill="#EB5A1E"></path>
+					// </svg>
+				// </div>
+			// </div>
+			// </div>}
+		// {account && nftStaked && <button className={styles.button1} onClick={() => {withdrawNFTs()}}>Withdraw NFT staked</button>}
+		// {account && nfts && <button className={styles.button1} onClick={() => {stakeNFTs()}}>Stake NFT to earn Crypton Days</button>} */}
+		<button onClick={() => checkWhitelist()}>Check Whitelist</button>
+		{whitelistStatus !== undefined && <h1>{whitelistStatus ? `Вы в вайтлисте и можете сминтить NFT!!!` : `К сожалению, Вы не в вайтлисте`}</h1>}
+		{whitelistStatus && <button onClick={}>Mint an NFT</button>}
     </div>
   );
 }
