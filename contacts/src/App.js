@@ -5,7 +5,6 @@ import {
 import Web3 from 'web3';
 import Web3Modal from "web3modal";
 import styles from "./styles/app.module.css";
-
 function App() {
 	const [account, setAccount] = useState();
 	const [balance, setBalance] = useState();
@@ -929,26 +928,12 @@ let stakeNftABI = [
 let contract = new web3.eth.Contract(minABI,tokenAddress);
 let NFTcontract = new web3.eth.Contract(nftABI,nftAdress);
 let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
-	const providerOptions = {
-		/* See Provider Options Section */
-	};
+	const providerOptions = {};
 	const web3Modal = new Web3Modal({
-		network: "mainnet", // optional
-		cacheProvider: true, // optional
-		providerOptions // required
+		network: "mainnet",
+		cacheProvider: true,
+		providerOptions
 	});
-	useEffect(() => {
-		console.log(account)
-		if (account) {
-			async function getAccs() {
-				const accounts = await web3.eth.getAccounts();
-				if (accounts) {
-					setAccount(accounts[0]);
-				}
-			}
-			getAccs();
-		}
-	}, [])
 
 	async function load() {
 		const accounts = await web3.eth.requestAccounts();
@@ -968,6 +953,16 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 		const rewardForStaking = await stakeNFTcontract.methods.earned(accounts[0]).call();
 		setStakeReward(rewardForStaking/10**18);
 	}
+		useEffect(() => {
+		load()
+		async function getAccs() {
+			const accounts = await web3.eth.getAccounts();
+			if (accounts) {
+				setAccount(accounts[0]);
+			}
+		getAccs();
+		}
+	}, [])
 	const onRemoveNFT = () => {
 		if(NFTsToStake > 1){
 			setNFTsToStake(NFTsToStake-1);
@@ -976,21 +971,34 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 	const onAddNFT = () => {
 		setNFTsToStake(NFTsToStake + 1);
 	}
+
 	async function logOut() {
 		const accounts = await web3Modal.clearCachedProvider();
 		setAccount(accounts)
 	}
 	async function getReward(){
-		const reward = await stakeNFTcontract.methods.getReward().send({from: account});
-		alert(`You have withdrawn ${stakeReward} tokens! Hooraaay!`)
+		const reward = await stakeNFTcontract.methods.getReward().send({from: account, gas: 180000});
+		setStakeReward(0);
+		setSubscribeDays(subscribeDays + stakeReward);
+
 	}
 	async function withdrawNFTs(){
-		const withdrawNFTS = await stakeNFTcontract.methods.withdraw(10,"0","0x00").send({from: account});
-		alert(`You have withdrawn 10 NFTs! Hooraaay!`)
+		const withdrawNFTS = await stakeNFTcontract.methods.withdraw(`${NFTsToStake}`,"0","0x00").send({from: account, gas: 180000});
+		// alert(`You have withdrawn ${NFTsToStake}! Hooraaay!`)
+		setNftStaked(+nftStaked - +NFTsToStake);
+		const rewardForStaking = await stakeNFTcontract.methods.earned(account).call();
+		setStakeReward(rewardForStaking/10**18);
+		const nftsAmount = await NFTcontract.methods.balanceOf(account,0).call();
+		setNFTS(nftsAmount)
 	}
 	async function stakeNFTs(){
-		const stakeNFTS = await stakeNFTcontract.methods.stake(10,"0","0x00").send({from: account});
-		alert(`You have staked 10 NFTs! Hooraaay!`)
+		const stakeNFTS = await stakeNFTcontract.methods.stake(`${NFTsToStake}`,"0","0x00").send({from: account, gas: 180000});
+		// alert(`You have staked ${NFTsToStake}! Hooraaay!`) 
+		setNftStaked(+nftStaked + +NFTsToStake);
+		const rewardForStaking = await stakeNFTcontract.methods.earned(account).call();
+		setStakeReward(rewardForStaking/10**18);
+		const nftsAmount = await NFTcontract.methods.balanceOf(account,0).call();
+		setNFTS(nftsAmount)
 	}
 
 	return (
@@ -1006,10 +1014,10 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 		</h1>
 		{nfts && account && <img src={NFTUri} alt="" />}
 		{nfts && account && <h1>You have {nfts} nfts</h1>}
-		{nftStaked && <h1>You have staked {nftStaked} nfts</h1>}
-		{stakeReward && <h1>Your rewards is {stakeReward} Crypton Days tokens!</h1>}
-		{stakeReward && <button className={styles.button1} onClick={() => getReward()}>Get Reward</button>}
-		<div>
+		{account && nftStaked && <h1>You have staked {nftStaked} nfts</h1>}
+		{account && stakeReward!==0 && <h1>Your rewards is {stakeReward} Crypton Days tokens!</h1>}
+		{account && stakeReward!==0 && <button className={styles.button1} onClick={() => getReward()}>Get Reward</button>}
+		{account && <div>
 			<h3 class={styles.header}>How many NFT you want to stake/unstake?</h3>
 
 			<div className={styles.cart}>
@@ -1023,9 +1031,9 @@ let stakeNFTcontract = new web3.eth.Contract(stakeNftABI,StakeNftAdress);
 					</svg>
 				</div>
 			</div>
-			</div>
-		{nftStaked && <button className={styles.button1} onClick={() => {withdrawNFTs()}}>Withdraw NFT staked</button>}
-		{nfts && <button className={styles.button1} onClick={() => {stakeNFTs()}}>Stake NFT to earn Crypton Days</button>}
+			</div>}
+		{account && nftStaked && <button className={styles.button1} onClick={() => {withdrawNFTs()}}>Withdraw NFT staked</button>}
+		{account && nfts && <button className={styles.button1} onClick={() => {stakeNFTs()}}>Stake NFT to earn Crypton Days</button>}
     </div>
   );
 }
