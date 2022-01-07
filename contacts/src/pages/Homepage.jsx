@@ -4,7 +4,7 @@ import { logOut } from "../functions/logout"
 import { web3 } from '../imports/web3'
 import styles from "../styles/homepage.module.css"
 import { checkIsLoggedIn } from '../functions/checkIsLoggedIn'
-
+import { motion } from "framer-motion"
 export default function Homepage({ account, setAccount }) {
 
 	useEffect(() => {
@@ -21,13 +21,35 @@ export default function Homepage({ account, setAccount }) {
 		listenMMAccount();
 	}, [])
 
-
+	const list = {
+		visible: { opacity: 1 },
+		hidden: { opacity: 0 },
+	}
 
 	return (
 		<div>
-			{account ? <h1>Your account is: {account}</h1> : <h1>You need to authorize to continue ;)</h1>}
-			<button className={styles.button} onClick={() => load(setAccount)}>Enter via metamask</button>
-			<button className={styles.button} onClick={() => logOut(setAccount)}>Log out</button>
+			{account != undefined ? (<motion.h1
+				initial="hidden"
+				animate="visible"
+				variants={list}
+				transition={{ duration: 0.3, type: 'spring' }}
+			>Your account is: {account}</motion.h1>) : (<motion.h1
+				initial="hidden"
+				animate="visible"
+				variants={list}
+				transition={{ duration: 0.3 }}>You need to authorize to continue ;)</motion.h1>)}
+			<motion.button
+				initial="hidden"
+				animate="visible"
+				variants={list}
+				transition={{ duration: 0.3, type: 'spring' }}
+				className={styles.button} onClick={() => load(setAccount)}>Enter via metamask</motion.button>
+			<motion.button
+				initial="hidden"
+				animate="visible"
+				variants={list}
+				transition={{ duration: 0.3, type: 'spring' }}
+				className={styles.button} onClick={() => logOut(setAccount)}>Log out</motion.button>
 		</div>
 	)
 }

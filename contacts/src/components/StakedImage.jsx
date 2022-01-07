@@ -2,17 +2,23 @@
 import React from 'react'
 import { unstakeNFT } from '../functions/unstakeNFT';
 import styles from "../styles/staking.module.css";
-
-
+import { motion } from "framer-motion"
+import StakingButton from './StakingButton';
 export default function StakedImage({ NFTImage, setNFTStaked, account }) {
+	const list = {
+		visible: { opacity: 1 },
+		hidden: { opacity: 0 },
+	}
 	return (
 		<div>
 			<div className={styles.staking}>
 
-				<img className={styles.staking__image_staked} src={NFTImage}></img>
+				<motion.img initial="hidden"
+					animate="visible"
+					variants={list}
+					transition={{ duration: 0.5, type: 'spring' }} className={styles.staking__image_staked} src={NFTImage}></motion.img>
 
-				<button onClick={() => unstakeNFT(setNFTStaked, account)} className={styles.staking__button_staked}>Анстейкнуть этот NFT</button>
-
+				<StakingButton callback={unstakeNFT} textButton={"Анстейкнуть этот NFT"} className={styles.staking__button_staked} hook={setNFTStaked} account={account} />
 			</div >
 		</div >
 	)

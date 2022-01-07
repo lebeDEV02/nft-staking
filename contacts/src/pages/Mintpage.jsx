@@ -5,12 +5,14 @@ import { mintNFT } from '../functions/mintNFT';
 import { Link } from 'react-router-dom';
 import { checkIsLoggedIn } from '../functions/checkIsLoggedIn';
 import { load } from '../functions/load';
+import { motion } from "framer-motion"
+import styles from "../styles/homepage.module.css"
 
 
 export default function Mintpage() {
 
 	const [whitelistStatus, setWhitelistStatus] = useState();
-	const [didMintedAnNFT, setDidMintedAnNFT] = useState("");
+	const [didMintedAnNFT, setDidMintedAnNFT] = useState();
 	const [account, setAccount] = useState();
 
 	useEffect(() => {
@@ -25,12 +27,28 @@ export default function Mintpage() {
 		}
 	}, [account])
 
+	const list = {
+		visible: { opacity: 1 },
+		hidden: { opacity: 0 },
+	}
 	return (
 		<>
-			{account && !didMintedAnNFT && <button onClick={() => checkWhitelist(setWhitelistStatus, account)}>Check Whitelist</button>}
-			{account && !didMintedAnNFT && whitelistStatus !== undefined && <h1>{whitelistStatus ? `Вы в вайтлисте и можете сминтить NFT!!!` : `К сожалению, Вы не в вайтлисте`}</h1>}
-			{account && !didMintedAnNFT && whitelistStatus && <button onClick={() => mintNFT(account)}>Mint an NFT</button>}
-			{account && didMintedAnNFT && <h1>Вы уже заминтили NFT, застейкать её можно <Link to="/stake">здесь</Link></h1>}
+			{!didMintedAnNFT != false && account && <motion.button
+				initial="hidden"
+				animate="visible"
+				variants={list}
+				transition={{ duration: 0.3, type: 'spring' }} className={styles.button} onClick={() => checkWhitelist(setWhitelistStatus, account)}>Check Whitelist</motion.button>}
+			{account && !didMintedAnNFT && whitelistStatus !== undefined && <motion.h1
+				initial="hidden"
+				animate="visible"
+				variants={list}
+				transition={{ duration: 0.3, type: 'spring' }}>{whitelistStatus ? `Вы в вайтлисте и можете сминтить NFT!!!` : `К сожалению, Вы не в вайтлисте`}</motion.h1>}
+			{account && !didMintedAnNFT && whitelistStatus && <button className={styles.button} onClick={() => mintNFT(account)}>Mint an NFT</button>}
+			{account && didMintedAnNFT && <motion.h1
+				initial="hidden"
+				animate="visible"
+				variants={list}
+				transition={{ duration: 0.3, type: 'spring' }}>Вы уже заминтили NFT, застейкать её можно <Link to="/stake">здесь</Link></motion.h1>}
 		</>
 	)
 }

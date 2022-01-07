@@ -25,7 +25,8 @@
 	margin-right: 8px;
 	max-width: 400px;
 }
-.staking__button_staked {
+
+.staking__button_approve{
 	align-items: center;
 	border: 0px;
 	border-radius: 16px;
@@ -44,14 +45,38 @@
 	opacity 0.2s ease 0s;
 	height: 48px;
 	padding: 0px 24px;
-	background-color: rgb(31, 199, 212);
+	background-color: rgb(255, 0, 43);
+	color: white;
+	margin-right: 8px;
+	max-width: 400px;
+}
+.staking__button_staked {
+	align-items: center;
+	border: 0px;
+	border-radius: 16px;
+	box-shadow: rgba(195, 255, 0, 0.4) 0px -1px 0px 0px inset;
+	cursor: pointer;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: 16px;
+	font-weight: 600;
+	justify-content: center;
+	letter-spacing: 0.03em;
+	line-height: 1;
+	opacity: 1;
+	outline: 0px;
+	transition: background-color 0.2s ease 0s,
+	opacity 0.2s ease 0s;
+	height: 48px;
+	padding: 0px 24px;
+	background-color: rgb(255, 145, 0);
 	color: white;
 	margin-right: 8px;
 	max-width: 400px;
 	opacity: 0.7;
 }
 .staking__button_staked:hover{
-	background-color: rgb(47, 0, 255);
+	background-color: rgb(52, 163, 0);
 }
 .staking__image_staked {
 	max-width: 400px;
