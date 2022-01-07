@@ -3,4 +3,4 @@ import { stakingAddress } from "./addresses/stakingAddress";
 import { web3 } from "../imports/web3";
 
 
-export const stakeNFTcontract = new web3.eth.Contract(nftStakingABI,stakingAddress);
+export const stakingContract = new web3.eth.Contract(nftStakingABI,stakingAddress);

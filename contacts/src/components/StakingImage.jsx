@@ -8,7 +8,7 @@ export default function StakingImage({ NFTImage, setNFTStaked, account }) {
 
 			<img className={styles.staking__image} src={NFTImage}></img>
 
-			<button onClick={() => stakeNFT(setNFTStaked, account.account)} className={styles.staking__button}>Застейкать этот NFT</button>
+			<button onClick={() => stakeNFT(setNFTStaked, account)} className={styles.staking__button}>Застейкать этот NFT</button>
 
 		</div>
 	)

@@ -1,7 +1,7 @@
-import { stakeNFTcontract } from "../contracts/stakingContract";
+import { stakingContract } from "../contracts/stakingContract";
 
 
 export async function getCurrentReward(setRewardForStaking, account){
-	const currentReward = await stakeNFTcontract.methods.earned(account).call();
+	const currentReward = await stakingContract.methods.earned(account).call();
 	setRewardForStaking(currentReward);
 }

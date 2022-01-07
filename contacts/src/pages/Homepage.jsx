@@ -8,6 +8,7 @@ import { checkIsLoggedIn } from '../functions/checkIsLoggedIn'
 export default function Homepage({ account, setAccount }) {
 
 	useEffect(() => {
+
 		if (checkIsLoggedIn()) {
 			load(setAccount)
 		}
