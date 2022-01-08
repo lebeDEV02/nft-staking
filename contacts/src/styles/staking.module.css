@@ -54,7 +54,7 @@
 	align-items: center;
 	border: 0px;
 	border-radius: 16px;
-	box-shadow: rgba(195, 255, 0, 0.4) 0px -1px 0px 0px inset;
+	    box-shadow: rgb(14 14 44 / 40%) 0px -1px 0px 0px inset;
 	cursor: pointer;
 	display: inline-flex;
 	font-family: inherit;
@@ -69,22 +69,15 @@
 	opacity 0.2s ease 0s;
 	height: 48px;
 	padding: 0px 24px;
-	background-color: rgb(255, 145, 0);
-	color: white;
+	background-color: rgb(31, 199, 212);
+	color: #fff;
 	margin-right: 8px;
 	max-width: 400px;
-	opacity: 0.7;
-}
-.staking__button_staked:hover{
-	background-color: rgb(52, 163, 0);
 }
 .staking__image_staked {
 	max-width: 400px;
-	opacity: 0.7;
 }
-.staking__button:hover{
-	background-color: rgb(47, 0, 255);
-}
+
 .staking{
 	display: flex;
 	flex-direction: column;
