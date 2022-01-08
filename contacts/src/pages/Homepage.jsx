@@ -6,10 +6,11 @@ import styles from "../styles/homepage.module.css"
 import { checkIsLoggedIn } from '../functions/checkIsLoggedIn'
 import { motion } from "framer-motion"
 import { generalVariant } from '../variants/generalVariant'
+import { checkNetworkId } from '../functions/checkNetworkId'
 export default function Homepage({ account, setAccount }) {
-
+	const [networkId, setNetworkId] = useState();
 	useEffect(() => {
-
+		checkNetworkId(setNetworkId);
 		if (checkIsLoggedIn()) {
 			load(setAccount)
 		}
@@ -21,8 +22,16 @@ export default function Homepage({ account, setAccount }) {
 		}
 		listenMMAccount();
 	}, [])
+	useEffect(() => {
+		if (networkId !== undefined && networkId !== 4) {
+			alert("Change your wallet network to Rinkeby")
+		}
+	}, [account])
+
+
 
 	return (
+
 		<motion.div initial="hidden"
 			animate="visible"
 			variants={generalVariant}

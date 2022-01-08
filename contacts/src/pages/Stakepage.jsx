@@ -15,6 +15,10 @@ import { setApproveForStaking } from '../functions/setApproveForStaking';
 import { checkIsApprovedForAll } from '../functions/checkIsApprovedForAll';
 import { generalVariant } from '../variants/generalVariant';
 import { componentsVariant } from '../variants/componentsVariant';
+import MoonLoader from "react-spinners/MoonLoader";
+import { web3 } from '../imports/web3';
+import { checkDidMintedAnNFT } from '../functions/checkDidMintedNFT';
+import { Link } from 'react-router-dom';
 export default function Stakepage() {
 
 	const [amountOfNFTs, setAmountOfNFTs] = useState();
@@ -25,6 +29,8 @@ export default function Stakepage() {
 	const [approval, setApproval] = useState(false);
 	const [account, setAccount] = useState();
 	const [isLoading, setIsLoading] = useState(false);
+	const [isWithdrawing, setIsWithdrawing] = useState(false);
+	const [didMintedAnNFT, setDidMintedAnNFT] = useState();
 
 
 	useEffect(() => {
@@ -38,15 +44,20 @@ export default function Stakepage() {
 			checkWhitelist(setWhitelistStatus, account);
 			checkBalanceOf(setNFTStaked, account);
 			checkIsApprovedForAll(setApproval, account);
-			console.log(approval)
+			getCurrentReward(setRewardForStaking, account, rewardForStaking)
+			checkDidMintedAnNFT(setDidMintedAnNFT, account);
 		}
 	}, [account])
 
-
-
 	useEffect(() => {
-		console.log("reward has changed!")
-	}, [rewardForStaking])
+		async function listenMMAccount() {
+			window.ethereum.on("accountsChanged", async function () {
+				const accounts = await web3.eth.requestAccounts();
+				load(setAccount)
+			});
+		}
+		listenMMAccount();
+	}, [])
 
 
 	useEffect(() => {
@@ -70,12 +81,16 @@ export default function Stakepage() {
 					clearInterval(interval);
 				};
 			}
+			// if (NFTStaked !== undefined && account) {
+			// 	getCurrentReward(setRewardForStaking, account, rewardForStaking)
+			// }
 		}
 	}, [NFTStaked, account])
 
 
 
 	return (
+
 		<motion.div initial="hidden"
 			animate="visible"
 			exit="exit"
@@ -96,24 +111,43 @@ export default function Stakepage() {
 					:
 					<StakingImage setNFTStaked={setNFTStaked} setIsLoading={setIsLoading} NFTImage={NFTImage} account={account} setApproval={setApproval} approval={approval} isLoading={isLoading} />)}
 			</div>
-			{console.log(amountOfNFTs === undefined)}
-			{amountOfNFTs !== undefined && +amountOfNFTs === 0 && +NFTStaked == false && account && <h1>Вы можете купить NFT <a href="https://testnets.opensea.io/assets/0x7356f28d8c640c871d90ad517e6265d8b006965e/0" target="_blank">здесь</a></h1>}
-			{account && (amountOfNFTs != false || NFTStaked != false) && rewardForStaking && <motion.h1
+			{whitelistStatus && account && !didMintedAnNFT && <motion.h1
 				initial="hidden"
 				animate="visible"
 				variants={generalVariant}
-			>Ваша текущая награда составляет<motion.span> {rewardForStaking / 10 ** 18}</motion.span> токенов Crypton Days
-			</motion.h1>}
-			{
-				account && (amountOfNFTs != false || NFTStaked != false) && rewardForStaking &&
-				<motion.button
+			>Вы в вайтлисте и <Link to="/mint">можете заминтить</Link> NFT</motion.h1>}
+			{!whitelistStatus && amountOfNFTs !== undefined && amountOfNFTs == false && NFTStaked == false && account && <h1>Вы можете купить NFT <a href="https://testnets.opensea.io/assets/0x7356f28d8c640c871d90ad517e6265d8b006965e/0" target="_blank">здесь</a></h1>}
+			<AnimatePresence>
+				{whitelistStatus && account && <motion.h1
 					initial="hidden"
-					animate="visible" isLoading={isLoading}
+					animate="visible"
+					exit="exit"
 					variants={generalVariant}
-					whileHover={{ scale: 1.03 }}
-					onClick={() => withdrawReward(setRewardForStaking, account)} className={styles.staking__button}>Вывести {rewardForStaking / 10 ** 18} токенов Crypton Days
-				</motion.button>
-			}
-		</motion.div>
+				>Ваша текущая награда составляет<motion.span> {rewardForStaking / 10 ** 18}</motion.span> токенов Crypton Days
+				</motion.h1>}
+			</AnimatePresence>
+			<AnimatePresence>
+				{
+					whitelistStatus && account && rewardForStaking != 0 &&
+					<motion.button
+						initial="hidden"
+						animate="visible"
+						exit="exit"
+						variants={generalVariant}
+						whileHover={{ scale: 1.03 }}
+						onClick={() => withdrawReward(setRewardForStaking, account, setIsWithdrawing)} className={isWithdrawing ? styles.staking__button_processing : styles.staking__button}>
+						Вывести {rewardForStaking / 10 ** 18} токенов Crypton Days
+						<AnimatePresence>
+							{isWithdrawing && <motion.div
+								initial="hidden"
+								animate="visible"
+								variants={generalVariant}
+								exit="exit"
+								className={styles.loader}>< MoonLoader size={20} loading={true} /></motion.div>}
+						</AnimatePresence>
+					</motion.button>
+				}
+			</AnimatePresence>
+		</motion.div >
 	)
 }
