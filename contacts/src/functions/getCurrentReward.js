@@ -5,6 +5,5 @@ export async function getCurrentReward(setRewardForStaking, account, rewardForSt
 	let previousReward = rewardForStaking;
 	const currentReward = await stakingContract.methods.earned(account).call();
 	setRewardForStaking(currentReward);
-	console.log(currentReward - previousReward);
 	previousReward = 0;
 }

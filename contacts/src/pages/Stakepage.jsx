@@ -9,9 +9,8 @@ import { getCurrentReward } from '../functions/getCurrentReward';
 import styles from "../styles/staking.module.css";
 import { withdrawReward } from '../functions/withdrawReward';
 import { checkIsLoggedIn } from '../functions/checkIsLoggedIn';
-import MoonLoader from "react-spinners/MoonLoader";
 import { checkBalanceOf } from '../functions/checkBalanceOf';
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { setApproveForStaking } from '../functions/setApproveForStaking';
 import { checkIsApprovedForAll } from '../functions/checkIsApprovedForAll';
 import { generalVariant } from '../variants/generalVariant';
@@ -50,11 +49,6 @@ export default function Stakepage() {
 	}, [rewardForStaking])
 
 
-	const override = `
-  display: block;
-  margin: 0 auto;
-  border-color: red;
-`;
 	useEffect(() => {
 		if (account) {
 			async function fetchData() {
@@ -70,10 +64,12 @@ export default function Stakepage() {
 					const json = await response.json();
 					setNFTImage(json.image);
 				})
-			const interval = setInterval(() => getCurrentReward(setRewardForStaking, account, rewardForStaking), 2000);
-			return () => {
-				clearInterval(interval);
-			};
+			if (NFTStaked) {
+				const interval = setInterval(() => getCurrentReward(setRewardForStaking, account, rewardForStaking), 2000);
+				return () => {
+					clearInterval(interval);
+				};
+			}
 		}
 	}, [NFTStaked, account])
 
@@ -85,14 +81,23 @@ export default function Stakepage() {
 			exit="exit"
 			variants={componentsVariant}
 		>
-			{account && amountOfNFTs !== undefined && !NFTStaked && <motion.h1
+			{/* {account && amountOfNFTs !== undefined && !NFTStaked && <motion.h1
 				initial="hidden"
 				animate="visible"
 				variants={generalVariant}
-			>У вас на кошельке {amountOfNFTs} NFT</motion.h1>}
-			{account && (amountOfNFTs != false || NFTStaked != false) && NFTImage && (NFTStaked ? <StakedImage NFTImage={NFTImage} setIsLoading={setIsLoading} setNFTStaked={setNFTStaked} account={account} /> : <StakingImage setNFTStaked={setNFTStaked} setIsLoading={setIsLoading} NFTImage={NFTImage} account={account} setApproval={setApproval} approval={approval} />)}
-			{(+amountOfNFTs == false && +NFTStaked == false) && <h1>Вы можете купить NFT <a href="https://testnets.opensea.io/assets/0x7356f28d8c640c871d90ad517e6265d8b006965e/0" target="_blank">здесь</a></h1>}
-			{isLoading && < MoonLoader css={override} size={150} />}
+			>У вас на кошельке {amountOfNFTs} NFT</motion.h1>} */}
+			<div>
+				<motion.img
+					initial="hidden"
+					animate="visible"
+					variants={generalVariant}
+					className={styles.staking__image} src={NFTImage}></motion.img>
+				{account && (amountOfNFTs != false || NFTStaked != false) && NFTImage && (NFTStaked ? <StakedImage NFTImage={NFTImage} setIsLoading={setIsLoading} setNFTStaked={setNFTStaked} account={account} isLoading={isLoading} />
+					:
+					<StakingImage setNFTStaked={setNFTStaked} setIsLoading={setIsLoading} NFTImage={NFTImage} account={account} setApproval={setApproval} approval={approval} isLoading={isLoading} />)}
+			</div>
+			{console.log(amountOfNFTs === undefined)}
+			{amountOfNFTs !== undefined && +amountOfNFTs === 0 && +NFTStaked == false && account && <h1>Вы можете купить NFT <a href="https://testnets.opensea.io/assets/0x7356f28d8c640c871d90ad517e6265d8b006965e/0" target="_blank">здесь</a></h1>}
 			{account && (amountOfNFTs != false || NFTStaked != false) && rewardForStaking && <motion.h1
 				initial="hidden"
 				animate="visible"
@@ -103,7 +108,7 @@ export default function Stakepage() {
 				account && (amountOfNFTs != false || NFTStaked != false) && rewardForStaking &&
 				<motion.button
 					initial="hidden"
-					animate="visible"
+					animate="visible" isLoading={isLoading}
 					variants={generalVariant}
 					whileHover={{ scale: 1.03 }}
 					onClick={() => withdrawReward(setRewardForStaking, account)} className={styles.staking__button}>Вывести {rewardForStaking / 10 ** 18} токенов Crypton Days
