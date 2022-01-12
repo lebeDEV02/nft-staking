@@ -20,6 +20,12 @@ import { checkDidMintedAnNFT } from '../functions/checkDidMintedNFT';
 import { Link } from 'react-router-dom';
 import { AccountContext } from '../Contexts/accountContext';
 import { web3Modal } from '../imports/web3Modal';
+import StakingButton from '../components/StakingButton';
+import { unstakeNFT } from '../functions/unstakeNFT';
+import { stakeNFT } from '../functions/stakeNFT';
+import Alert from '@mui/material/Alert';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function Stakepage() {
 
 	const [amountOfNFTs, setAmountOfNFTs] = useState();
@@ -32,7 +38,6 @@ export default function Stakepage() {
 	const [isWithdrawing, setIsWithdrawing] = useState(false);
 	const [didMintedAnNFT, setDidMintedAnNFT] = useState();
 	const { account, setAccount } = useContext(AccountContext)
-
 	useEffect(() => {
 		if (web3Modal.cachedProvider) {
 			load(setAccount)
@@ -85,22 +90,52 @@ export default function Stakepage() {
 
 	return (
 		<>
-			{!web3Modal.cachedProvider && <h1><Link to="/">Авторизуйтесь</Link>, чтобы продолжить</h1>}
+			<div>
+				<ToastContainer
+					position="bottom-right"
+					autoClose={5000}
+					hideProgressBar={false}
+					newestOnTop={false}
+					closeOnClick={false}
+					rtl={false}
+					pauseOnFocusLoss
+					draggable
+					pauseOnHover
+				/>
+			</div>
+			{/* <Alert variant="filled" severity="error" onClose={() => { }}>This is a success alert — check it out!</Alert> */}
+			{!web3Modal.cachedProvider && <h1>Авторизуйтесь, чтобы продолжить</h1>}
 			<motion.div initial="hidden"
 				animate="visible"
 				exit="exit"
 				variants={componentsVariant}
 			>
-				<div>
-					<motion.img
+				<motion.img
+					initial="hidden"
+					animate="visible"
+					variants={generalVariant}
+					className={styles.staking__image}
+					src={NFTImage}>
+				</motion.img>
+				<AnimatePresence>
+					<motion.div
 						initial="hidden"
 						animate="visible"
 						variants={generalVariant}
-						className={styles.staking__image} src={NFTImage}></motion.img>
-					{account && (amountOfNFTs != false || NFTStaked != false) && NFTImage && (NFTStaked ? <StakedImage NFTImage={NFTImage} setIsLoading={setIsLoading} setNFTStaked={setNFTStaked} account={account} isLoading={isLoading} />
-						:
-						<StakingImage setNFTStaked={setNFTStaked} setIsLoading={setIsLoading} NFTImage={NFTImage} account={account} setApproval={setApproval} approval={approval} isLoading={isLoading} />)}
-				</div>
+						exit="exit"
+						className={styles.staking}
+					>
+						{NFTStaked !== undefined && account && NFTImage &&
+							(NFTStaked ?
+								<StakingButton callback={unstakeNFT} setIsLoading={setIsLoading} textButton={"Анстейкнуть этот NFT"} className={styles.staking__button} hook={setNFTStaked} account={account} isLoading={isLoading} />
+								:
+								(approval ?
+									<StakingButton callback={stakeNFT} setIsLoading={setIsLoading} textButton={"Застейкать этот NFT"} className={styles.staking__button} hook={setNFTStaked} account={account} isLoading={isLoading} />
+									:
+									<StakingButton callback={setApproveForStaking} setIsLoading={setIsLoading} textButton={"Заапрувить NFT"} className={styles.staking__button_approve} hook={setApproval} account={account} isLoading={isLoading} />)
+							)}
+					</motion.div>
+				</AnimatePresence>
 				{whitelistStatus && account && !didMintedAnNFT && <motion.h1
 					initial="hidden"
 					animate="visible"

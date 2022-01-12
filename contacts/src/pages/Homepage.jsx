@@ -51,35 +51,29 @@ export default function Homepage() {
 			<motion.div initial="hidden"
 				animate="visible"
 				variants={generalVariant}
+				className={styles.login}
 				exit={{ opacity: 0, transtion: { ease: "easeInOut" } }}>
-				{account ? (<motion.h1
+				{account && (<motion.h5
 					initial="hidden"
 					animate="visible"
-					variants={generalVariant}
-				>Your account is: {account}</motion.h1>) : (<motion.h1
-					initial="hidden"
-					animate="visible"
-					variants={generalVariant}>You need to authorize to continue ;)</motion.h1>)}
-				<motion.button
-					initial="hidden"
-					animate="visible"
-					variants={generalVariant}
-					whileHover={{ scale: 1.03 }}
-					className={styles.button} onClick={() => load(setAccount)}>Enter via metamask</motion.button>
-				<motion.button
-					initial="hidden"
-					animate="visible"
-					variants={generalVariant}
-					whileHover={{ scale: 1.03 }}
-					className={styles.button} onClick={() => logOut(setAccount)}>Log out</motion.button>
-			</motion.div>
-			<AnimatePresence>
-				{chainId !== undefined && chainId !== 4 && <motion.h1 initial="hidden"
-					animate="visible"
-					variants={generalVariant}
 					exit="exit"
-				>Смените сеть на Rinkeby, чтобы продолжить</motion.h1>}
-			</AnimatePresence>
+					variants={generalVariant}
+					className={styles.account}
+				>{account}</motion.h5>)}
+				{!account && <motion.button
+					initial="hidden"
+					animate="visible"
+					variants={generalVariant}
+					whileHover={{ scale: 1.03 }}
+					className={styles.button} onClick={() => load(setAccount)}>Enter via metamask</motion.button>}
+				{account && <motion.button
+					initial="hidden"
+					animate="visible"
+					variants={generalVariant}
+					whileHover={{ scale: 1.03 }}
+					className={styles.button} onClick={() => logOut(setAccount)}>Log out</motion.button>}
+			</motion.div>
+			{chainId !== undefined && chainId !== 4 && alert("Смените сеть на Rinkeby, чтобы продолжить")}
 		</>
 	)
 }

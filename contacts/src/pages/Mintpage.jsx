@@ -9,22 +9,23 @@ import styles from "../styles/minting.module.css"
 import { generalVariant } from '../variants/generalVariant';
 import { web3 } from '../imports/web3';
 import MoonLoader from "react-spinners/MoonLoader";
-import classnames from 'classnames';
 import { AccountContext } from '../Contexts/accountContext';
 import { web3Modal } from '../imports/web3Modal';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function Mintpage() {
 
 	const [whitelistStatus, setWhitelistStatus] = useState();
 	const [didMintedAnNFT, setDidMintedAnNFT] = useState(false);
 	const [isMinting, setIsMinting] = useState(false);
 	const { account, setAccount } = useContext(AccountContext)
-
+	const [chainId, setChainId] = useState();
 
 	useEffect(() => {
 		if (web3Modal.cachedProvider) {
 			load(setAccount)
 		}
+
 		async function listenMMAccount() {
 			window.ethereum.on("accountsChanged", async function () {
 				const accounts = await web3.eth.requestAccounts();
@@ -34,6 +35,11 @@ export default function Mintpage() {
 		listenMMAccount();
 		if (account) {
 			checkDidMintedAnNFT(setDidMintedAnNFT, account);
+			async function checkChainId() {
+				const chainId = await web3.eth.getChainId()
+				setChainId(chainId)
+			}
+			checkChainId();
 		}
 	}, [account])
 
@@ -41,12 +47,25 @@ export default function Mintpage() {
 
 	return (
 		<>
-			{!web3Modal.cachedProvider && <h1><Link to="/">Авторизуйтесь</Link>, чтобы продолжить</h1>}
-			<motion.div initial="hidden"
+			<div>
+				<ToastContainer
+					position="bottom-right"
+					autoClose={5000}
+					hideProgressBar={false}
+					newestOnTop={false}
+					closeOnClick={false}
+					rtl={false}
+					pauseOnFocusLoss
+					draggable
+					pauseOnHover
+				/>
+			</div>
+			{!web3Modal.cachedProvider && <h1>Авторизуйтесь, чтобы продолжить</h1>}
+			{chainId == 4 && <motion.div initial="hidden"
 				animate="visible"
 				variants={generalVariant}
 				exit={{ opacity: 0, transtion: { ease: "easeInOut" } }}>
-				{!didMintedAnNFT != false && account && <motion.button
+				{web3Modal.cachedProvider && !didMintedAnNFT != false && account && <motion.button
 					initial="hidden"
 					animate="visible"
 					variants={generalVariant}
@@ -80,7 +99,7 @@ export default function Mintpage() {
 					animate="visible"
 					variants={generalVariant}
 				>Вы уже заминтили NFT, застейкать её можно <Link to="/stake">здесь</Link></motion.h1>}
-			</motion.div>
+			</motion.div>}
 		</>
 	)
 }

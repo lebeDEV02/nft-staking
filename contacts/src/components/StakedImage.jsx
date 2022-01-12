@@ -7,13 +7,8 @@ import StakingButton from './StakingButton';
 import { generalVariant } from '../variants/generalVariant';
 export default function StakedImage({ setNFTStaked, account, setIsLoading, isLoading }) {
 	return (
-		<motion.div
-			initial="hidden"
-			animate="visible"
-			exit="exit"
-			variants={generalVariant} className={styles.staking}>
-
-			<StakingButton callback={unstakeNFT} setIsLoading={setIsLoading} textButton={"Анстейкнуть этот NFT"} className={styles.staking__button_staked} hook={setNFTStaked} account={account} isLoading={isLoading} />
-		</motion.div >
+		<>
+			<StakingButton callback={unstakeNFT} setIsLoading={setIsLoading} textButton={"Анстейкнуть этот NFT"} className={styles.staking__button} hook={setNFTStaked} account={account} isLoading={isLoading} />
+		</>
 	)
 }

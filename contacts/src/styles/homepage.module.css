@@ -21,3 +21,11 @@
 	color: white;
 	margin-right: 8px;
 }
+.account{
+	color: #fff;
+	margin-right: 20px;
+}
+.login {
+	display: flex;
+	align-items: center;
+}
