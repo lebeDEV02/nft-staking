@@ -13,7 +13,7 @@ import { web3Modal } from '../imports/web3Modal'
 export default function Homepage() {
 	const [chainId, setChainId] = useState();
 	const { account, setAccount } = useContext(AccountContext)
-
+	const [error, setError] = useState();
 
 
 	useEffect(() => {
@@ -32,6 +32,68 @@ export default function Homepage() {
 		}
 		listenMMAccount();
 	}, [])
+
+
+	const handleNetworkSwitch = async (networkName) => {
+		setError();
+		await changeNetwork({ networkName, setError });
+	};
+	const changeNetwork = async ({ networkName, setError }) => {
+		try {
+			if (!window.ethereum) throw new Error("No crypto wallet found");
+			await window.ethereum.request({
+				method: "wallet_addEthereumChain",
+				params: [
+					{
+						...networks[networkName]
+					}
+				]
+			});
+		} catch (err) {
+			setError(err.message);
+		}
+	};
+	const networks = {
+		bsc: {
+			chainId: `0x${Number(56).toString(16)}`,
+			chainName: "Binance Smart Chain Mainnet",
+			nativeCurrency: {
+				name: "Binance Chain Native Token",
+				symbol: "BNB",
+				decimals: 18
+			},
+			rpcUrls: [
+				"https://bsc-dataseed1.binance.org",
+				"https://bsc-dataseed2.binance.org",
+				"https://bsc-dataseed3.binance.org",
+				"https://bsc-dataseed4.binance.org",
+				"https://bsc-dataseed1.defibit.io",
+				"https://bsc-dataseed2.defibit.io",
+				"https://bsc-dataseed3.defibit.io",
+				"https://bsc-dataseed4.defibit.io",
+				"https://bsc-dataseed1.ninicoin.io",
+				"https://bsc-dataseed2.ninicoin.io",
+				"https://bsc-dataseed3.ninicoin.io",
+				"https://bsc-dataseed4.ninicoin.io",
+				"wss://bsc-ws-node.nariox.org"
+			],
+			blockExplorerUrls: ["https://bscscan.com"]
+		},
+		rinkeby: {
+			chainId: `0x${Number(4).toString(16)}`,
+			chainName: "Rinkeby",
+			nativeCurrency: {
+				name: "Rinkeby Ether",
+				symbol: "RIN",
+				decimals: 18
+			},
+			rpcUrls: [
+				"https://rinkeby.infura.io/v3/3de517be87e74aa6acdd7438d1802d82",
+				"wss://rinkeby.infura.io/ws/v3/3de517be87e74aa6acdd7438d1802d82"
+			],
+			blockExplorerUrls: ["https://rinkeby.etherscan.io"]
+		}
+	};
 
 	useEffect(() => {
 		if (account) {
@@ -72,8 +134,8 @@ export default function Homepage() {
 					variants={generalVariant}
 					whileHover={{ scale: 1.03 }}
 					className={styles.button} onClick={() => logOut(setAccount)}>Log out</motion.button>}
+				{/* {chainId != undefined && chainId !== 4 ? <button onClick={() => handleNetworkSwitch("rinkeby")}>Change Network to Rinkeby</button> : null} */}
 			</motion.div>
-			{chainId !== undefined && chainId !== 4 && alert("Смените сеть на Rinkeby, чтобы продолжить")}
 		</>
 	)
 }

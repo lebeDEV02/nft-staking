@@ -143,7 +143,7 @@ export default function Stakepage() {
 				>Вы в вайтлисте и <Link to="/mint">можете заминтить</Link> NFT</motion.h1>}
 				{!whitelistStatus && amountOfNFTs !== undefined && amountOfNFTs == false && NFTStaked == false && account && <h1>Вы можете купить NFT <a href="https://testnets.opensea.io/assets/0x7356f28d8c640c871d90ad517e6265d8b006965e/0" target="_blank">здесь</a></h1>}
 				<AnimatePresence>
-					{whitelistStatus && account && <motion.h1
+					{account && <motion.h1
 						initial="hidden"
 						animate="visible"
 						exit="exit"
@@ -157,7 +157,7 @@ export default function Stakepage() {
 				</AnimatePresence>
 				<AnimatePresence>
 					{
-						whitelistStatus && account && rewardForStaking != 0 &&
+						account && rewardForStaking != 0 &&
 						<motion.button
 							initial="hidden"
 							animate="visible"

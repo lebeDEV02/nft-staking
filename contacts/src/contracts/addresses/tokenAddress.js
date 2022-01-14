@@ -1,1 +1,1 @@
-export const tokenAddress = "0xE2e659046E9C28d935A55BDe7A03D153b7A3e7A3";
+export const tokenAddress = "0xA8ed26881260C5787Bf6c01a5c49f6f5e7ba7e18";
