@@ -61,7 +61,7 @@ export default function Mintpage() {
 				/>
 			</div>
 			{!web3Modal.cachedProvider && <h1>Авторизуйтесь, чтобы продолжить</h1>}
-			{chainId == 4 && <motion.div initial="hidden"
+			{<motion.div initial="hidden"
 				animate="visible"
 				variants={generalVariant}
 				exit={{ opacity: 0, transtion: { ease: "easeInOut" } }}>
