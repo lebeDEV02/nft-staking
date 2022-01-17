@@ -134,7 +134,7 @@ export default function Homepage() {
 					variants={generalVariant}
 					whileHover={{ scale: 1.03 }}
 					className={styles.button} onClick={() => logOut(setAccount)}>Log out</motion.button>}
-				{chainId != undefined && chainId !== 97 ? <button onClick={() => handleNetworkSwitch("bsc")}>Change Network to Rinkeby</button> : null}
+				{chainId != undefined && chainId !== 1337 ? <button onClick={() => handleNetworkSwitch("bsc")}>Change Network to Rinkeby</button> : null}
 			</motion.div>
 		</>
 	)

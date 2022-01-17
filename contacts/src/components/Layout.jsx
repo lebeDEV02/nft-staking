@@ -8,7 +8,6 @@ export default function Layout(location) {
 				<nav className="nav">
 					<NavLink to="/mint">Mint</NavLink>
 					<NavLink to="/stake">Stake</NavLink>
-					<NavLink to="/exchange">Exchange</NavLink>
 				</nav>
 				<div className="login">
 					<Homepage />
